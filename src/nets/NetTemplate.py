@@ -17,8 +17,10 @@ class NetTemplate(object):
 
         conv = self._conv2d(img_batch, [3,3,3,16], bias=True, name="Layer1")
         conv2 = self._conv2d(conv, [3,3,16, 64], bias=False, name="Layer2")
+        max_pool = self._max_pool(conv2)
+        avg_pool = self._avg_pool(max_pool)
 
-        return conv
+        return avg_pool
 
     def _conv2d(self, inputs, shapes, strides=[1,1,1,1], padding="SAME",name="conv2d", bias=True, dtype=tf.float32):
         # Track stats
@@ -49,6 +51,12 @@ class NetTemplate(object):
 
         return conv
 
+    def _max_pool(self, inputs, kernel=[1,2,2,1], strides=[1,2,2,1], padding="VALID", name = "max_pool"):
+        return tf.nn.max_pool(inputs, kernel, strides, padding=padding, name=name)
+
+    def _avg_pool(self, inputs, kernel=[1,2,2,1], strides=[1,2,2,1], padding="VALID", name = "max_pool"):
+        return tf.nn.avg_pool(inputs, kernel, strides, padding=padding, name=name)
+
 if __name__ == '__main__':
 
     X = tf.placeholder(dtype=tf.float32, shape=[None, 32,32, 3], name="X")
@@ -59,5 +67,7 @@ if __name__ == '__main__':
 
     conv_layer = test_net.define_net()
     print("Model size:", test_net.get_size())
+    shape = conv_layer.get_shape()
+    print("Model shape:", shape)
 
     print("test was successful!")
