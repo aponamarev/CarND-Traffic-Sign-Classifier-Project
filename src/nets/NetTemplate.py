@@ -3,12 +3,14 @@ import tensorflow as tf
 import numpy as np
 
 class NetTemplate(object):
-    def __init__(self, input_dict, default_activation='elu', dtype=tf.float32):
-        self.inputs = input_dict
+    def __init__(self, default_activation='elu', dtype=tf.float32):
         self.weights = []
         self.size = []
         self._default_activation = default_activation
         self._dtype = dtype
+        self.feature_map=None
+        self.total_loss=None
+        self.optimization_op=None
 
     def get_size(self):
         params = np.sum(np.sum(self.size))
@@ -16,21 +18,17 @@ class NetTemplate(object):
 
     def define_net(self):
 
-        img_batch = self.inputs['X']
+        raise NotImplementedError("Feature map encoder was not implemented!")
 
-        net = self._conv2d(img_batch, [3,3,3,16], bias=True, name="Layer1")
-        net = self._batch_norm(net)
-        net = self._conv2d(net, [3,3,16, 64], bias=False, name="Layer2")
-        net = self._batch_norm(net)
-        net = self._max_pool(net)
-        net = self._batch_norm(net)
-        net = self._avg_pool(net)
-        net = self._batch_norm(net)
-        net = self._fullyconnected(net,10)
+    def define_loss(self):
+        raise NotImplementedError("Loss estimate was not defined!")
 
-        return net
+    def define_optimization_method(self):
+        self.optimization_op = tf.train.AdamOptimizer()
+        self.optimization_op.minimize(self.total_loss)
 
-    def _conv2d(self, inputs, shapes=[1,3,3,1], strides=[1,1,1,1], padding="SAME",name="conv2d", bias=True, dtype=None):
+
+    def _conv2d(self, inputs, shapes, strides=[1,1,1,1], padding="SAME",name="conv2d", bias=True, dtype=None):
         dtype = dtype or self._dtype
         # Create weights and biases
         with tf.variable_scope(name):
@@ -87,8 +85,8 @@ class NetTemplate(object):
     def _avg_pool(self, inputs, kernel=[1,2,2,1], strides=[1,2,2,1], padding="VALID", name = "max_pool"):
         return tf.nn.avg_pool(inputs, kernel, strides, padding=padding, name=name)
 
-    def _batch_norm(self, input):
-        return tf.layers.batch_normalization(input)
+    def _batch_norm(self, input, name):
+        return tf.layers.batch_normalization(input, name=name)
 
     def _relu_activation(self, input):
 
@@ -121,19 +119,3 @@ class NetTemplate(object):
         tf.summary.histogram('{}_hist'.format(variable.op.name), variable)
         self.weights.append(variable)
         self.size.append(size)
-
-
-if __name__ == '__main__':
-
-    X = tf.placeholder(dtype=tf.float32, shape=[None, 32,32, 3], name="X")
-
-    input_dict = {"X": X}
-
-    test_net = NetTemplate(input_dict)
-
-    conv_layer = test_net.define_net()
-    print("Model size:", test_net.get_size())
-    shape = conv_layer.get_shape().as_list()
-    print("Model shape:", shape)
-
-    print("test was successful!")
