@@ -3,9 +3,10 @@ import tensorflow as tf
 import numpy as np
 
 class NetTemplate(object):
-    def __init__(self, default_activation='elu', dtype=tf.float32):
+    def __init__(self, default_activation='elu', dtype=tf.float32, dropout_rate = tf.constant(0.75, dtype=tf.float32)):
         self.weights = []
         self.size = []
+        self._dropout_rate = dropout_rate
         self._default_activation = default_activation
         self._dtype = dtype
         self.feature_map=None
@@ -13,6 +14,11 @@ class NetTemplate(object):
         self.optimization_op=None
 
     def get_size(self):
+        """
+        Estimates the size of weights of the model.
+        
+        :return: dictionary with 'parameters' and 'Mb'
+        """
         params = np.sum(np.sum(self.size))
         return {'parameters':params, 'Mb': params*self._dtype.size/(2.0**20)}
 
@@ -24,8 +30,8 @@ class NetTemplate(object):
         raise NotImplementedError("Loss estimate was not defined!")
 
     def define_optimization_method(self):
-        self.optimization_op = tf.train.AdamOptimizer()
-        self.optimization_op.minimize(self.total_loss)
+        optimizer = tf.train.AdamOptimizer()
+        self.optimization_op = optimizer.minimize(self.total_loss)
 
 
     def _conv2d(self, inputs, shapes, strides=[1,1,1,1], padding="SAME",name="conv2d", bias=True, dtype=None):
@@ -87,6 +93,18 @@ class NetTemplate(object):
 
     def _batch_norm(self, input, name):
         return tf.layers.batch_normalization(input, name=name)
+
+    def _drop_out_fullyconnected(self, input, name):
+        return tf.layers.dropout(input, self._dropout_rate, name=name)
+
+    def _drop_out_conv(self, input, name):
+        shape = input.get_shape().as_list()
+        shape[0] = -1
+        with tf.name_scope(name):
+            flat = tf.contrib.layers.flatten(input)
+            dropout = self._drop_out_fullyconnected(flat, name="dropout")
+            conv = tf.reshape(dropout, shape=shape)
+        return conv
 
     def _relu_activation(self, input):
 
