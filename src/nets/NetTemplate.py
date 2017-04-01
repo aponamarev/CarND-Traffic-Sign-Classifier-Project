@@ -3,10 +3,12 @@ import tensorflow as tf
 import numpy as np
 
 class NetTemplate(object):
-    def __init__(self, default_activation='elu', dtype=tf.float32, dropout_rate = tf.constant(0.75, dtype=tf.float32)):
+    def __init__(self, training_mode_flag, dropout_rate, default_activation='elu',
+                 dtype=tf.float32):
         self.weights = []
         self.size = []
         self._dropout_rate = dropout_rate
+        self._training_mode = training_mode_flag
         self._default_activation = default_activation
         self._dtype = dtype
         self.feature_map=None
@@ -91,11 +93,11 @@ class NetTemplate(object):
     def _avg_pool(self, inputs, kernel=[1,2,2,1], strides=[1,2,2,1], padding="VALID", name = "max_pool"):
         return tf.nn.avg_pool(inputs, kernel, strides, padding=padding, name=name)
 
-    def _batch_norm(self, input, name):
-        return tf.layers.batch_normalization(input, name=name)
+    def _batch_norm(self, input, name, trainable=False):
+        return tf.layers.batch_normalization(input, name=name, trainable=trainable, training=self._training_mode)
 
     def _drop_out_fullyconnected(self, input, name):
-        return tf.layers.dropout(input, self._dropout_rate, name=name)
+        return tf.layers.dropout(input, self._dropout_rate, training=self._training_mode, name=name)
 
     def _drop_out_conv(self, input, name):
         shape = input.get_shape().as_list()

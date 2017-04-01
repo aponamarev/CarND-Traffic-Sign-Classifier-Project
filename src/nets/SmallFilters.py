@@ -3,7 +3,7 @@ import tensorflow as tf
 from .NetTemplate import NetTemplate
 
 class SmallFilters(NetTemplate):
-    def __init__(self, input_dict, dropout_placeholder):
+    def __init__(self, input_dict, dropout_placeholder, training_mode_flag):
         img_data = 'img_data'
         labels = 'labels'
         assert (img_data in input_dict.keys()) & (labels in input_dict.keys()),\
@@ -11,9 +11,10 @@ class SmallFilters(NetTemplate):
                 format(input_dict.keys(), img_data, labels)
 
         NetTemplate.__init__(self,
+                             dropout_rate = dropout_placeholder,
+                             training_mode_flag = training_mode_flag,
                              default_activation='elu',
-                             dtype=tf.float32,
-                             dropout_rate=dropout_placeholder)
+                             dtype=tf.float32)
 
         self.X = input_dict[img_data]
         self.Y = input_dict[labels]
@@ -39,19 +40,19 @@ class SmallFilters(NetTemplate):
         bottleneck3 = self._conv2d(conv2, [1, 1, 16, 4], bias=True, padding="SAME", name="bottleneck3")
         bn3 = self._batch_norm(bottleneck3, name="bn3") #16
 
-        conv4 = self._conv2d(bn3, [3, 3, 4, 16], bias=False, padding="SAME", name="conv4")
-        conv5 = self._conv2d(conv4, [3, 3, 16, 32], strides=[1, 2, 2, 1], bias=True, padding="VALID", name="conv5")
-        bottleneck6 = self._conv2d(conv5, [1, 1, 32, 16], bias=True, padding="SAME", name="bottleneck6")
+        conv4 = self._conv2d(bn3, [3, 3, 4, 8], bias=False, padding="SAME", name="conv4")
+        conv5 = self._conv2d(conv4, [3, 3, 8, 16], strides=[1, 2, 2, 1], bias=True, padding="VALID", name="conv5")
+        bottleneck6 = self._conv2d(conv5, [1, 1, 16, 4], bias=True, padding="SAME", name="bottleneck6")
         bn6 = self._batch_norm(bottleneck6, name="bn6") #8
 
         dropout = self._drop_out_conv(bn6, "dropout_layer6")
 
-        conv7 = self._conv2d(dropout, [3, 3, 16, 64], strides=[1, 2, 2, 1], bias=False, padding="SAME", name="conv7") #4
-        conv8 = self._conv2d(conv7, [3, 3, 64, 128], bias=True, padding="VALID", name="conv8") #2
+        conv7 = self._conv2d(dropout, [3, 3, 4, 120], strides=[1, 2, 2, 1], bias=False, padding="SAME", name="conv7") #4
+        conv8 = self._conv2d(conv7, [3, 3, 120, 84], bias=True, padding="VALID", name="conv8") #2
         with tf.name_scope("feature_map"):
             self.feature_map = tf.squeeze(
                 self._conv2d(conv8,
-                             [2, 2, 128, self._N_CLASSES],
+                             [2, 2, 84, self._N_CLASSES],
                              bias=True,
                              padding="VALID",name="conv"))
 

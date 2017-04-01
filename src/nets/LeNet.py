@@ -2,7 +2,7 @@
 import tensorflow as tf
 from .NetTemplate import NetTemplate
 
-class LeNet_BN(NetTemplate):
+class LeNet(NetTemplate):
     def __init__(self, input_dict):
         img_data = 'img_data'
         labels = 'labels'
@@ -10,7 +10,10 @@ class LeNet_BN(NetTemplate):
             "Incorrect input_dict was provided ({}). Dictionary is expected to contain: {},{}".\
                 format(input_dict.keys(), img_data, labels)
 
-        NetTemplate.__init__(self,default_activation='elu', dtype=tf.float32)
+        NetTemplate.__init__(self,
+                             dropout_rate=tf.constant(1.0, dtype=tf.float32),
+                             training_mode_flag=False,
+                             default_activation='elu', dtype=tf.float32)
 
         self.X = input_dict[img_data]
         self.Y = input_dict[labels]
@@ -31,15 +34,13 @@ class LeNet_BN(NetTemplate):
 
     def define_net(self):
 
-        conv1 = self._conv2d(self.X, [5,5,3,6], bias=False, padding="VALID",name="conv1")
+        conv1 = self._conv2d(self.X, [5,5,3,6], bias=True, padding="VALID",name="conv1")
         pool1 = self._max_pool(conv1, name="pool1")
-        pool1_bn = self._batch_norm(pool1, name="pool1_bn")
 
-        conv2 = self._conv2d(pool1_bn, [5,5, 6, 16], bias=False, padding="VALID", name="conv2")
+        conv2 = self._conv2d(pool1, [5,5, 6, 16], bias=True, padding="VALID", name="conv2")
         pool2 = self._max_pool(conv2, name="pool2")
-        pool2_bn = self._batch_norm(pool2, name="pool2_bn")
 
-        fc3 = self._fullyconnected(pool2_bn, 120, name="fc3")
+        fc3 = self._fullyconnected(pool2, 120, name="fc3")
         fc4 = self._fullyconnected(fc3, 84, name="fc4")
 
         self.feature_map = self._fullyconnected(fc4, self._N_CLASSES, name="feature_map")

@@ -3,7 +3,7 @@ import tensorflow as tf
 from .NetTemplate import NetTemplate
 
 class LeNet_BN_DropOut(NetTemplate):
-    def __init__(self, input_dict, dropout_placeholder):
+    def __init__(self, input_dict, dropout_placeholder, training_mode_flag):
         img_data = 'img_data'
         labels = 'labels'
         assert (img_data in input_dict.keys()) & (labels in input_dict.keys()),\
@@ -11,9 +11,10 @@ class LeNet_BN_DropOut(NetTemplate):
                 format(input_dict.keys(), img_data, labels)
 
         NetTemplate.__init__(self,
+                             dropout_rate=dropout_placeholder,
+                             training_mode_flag=training_mode_flag,
                              default_activation='elu',
-                             dtype=tf.float32,
-                             dropout_rate=dropout_placeholder)
+                             dtype=tf.float32)
 
         self.X = input_dict[img_data]
         self.Y = input_dict[labels]
