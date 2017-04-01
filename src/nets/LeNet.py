@@ -3,18 +3,30 @@ import tensorflow as tf
 from .NetTemplate import NetTemplate
 
 class LeNet_BN(NetTemplate):
-    def __init__(self, input_dict, number_of_classes):
+    def __init__(self, input_dict):
         img_data = 'img_data'
         labels = 'labels'
         assert (img_data in input_dict.keys()) & (labels in input_dict.keys()),\
             "Incorrect input_dict was provided ({}). Dictionary is expected to contain: {},{}".\
                 format(input_dict.keys(), img_data, labels)
 
-        NetTemplate.__init__(self, input_dict, default_activation='elu', dtype=tf.float32)
+        NetTemplate.__init__(self,default_activation='elu', dtype=tf.float32)
 
         self.X = input_dict[img_data]
         self.Y = input_dict[labels]
-        self._N_CLASSES = number_of_classes
+        self._N_CLASSES = self.Y.get_shape().as_list()[1]
+
+        self.assemble()
+
+    def assemble(self):
+        self.define_net()
+        print("Autoencoder was successfully created.")
+        self.define_loss()
+        print("Loss definition was successfully created.")
+        self.define_optimization_method()
+        print("Optimization function was initialized.")
+        print("LetNet is ready for training!")
+
 
 
     def define_net(self):
@@ -34,7 +46,7 @@ class LeNet_BN(NetTemplate):
 
     def define_loss(self):
 
-        with tf.op_scope("cross_entropy"):
+        with tf.name_scope("cross_entropy"):
 
             self.total_loss = tf.reduce_mean(
                 tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=self.feature_map)
