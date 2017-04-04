@@ -4,12 +4,18 @@ from .NetTemplate import NetTemplate
 
 class ClassificationTemplate(NetTemplate):
     def __init__(self, X_placeholders, Y_placeholders, n_classes, default_activation='elu',
-                 dtype=tf.float32):
+                 dtype=tf.float32, probability_density = None):
 
         self.X = X_placeholders
         self.labels = Y_placeholders
         self.Y = tf.one_hot(self.labels, n_classes)
         self._N_CLASSES = self.Y.get_shape().as_list()[1]
+
+        if probability_density is None:
+            self.pdf=None
+        else:
+            self.pdf = tf.constant(probability_density, shape=[self._N_CLASSES],
+                                   dtype=dtype, name='probability_density_function')
 
         NetTemplate.__init__(self,
                              dropout_keep_rate=tf.placeholder(dtype=tf.float32, shape=[], name="dropout_keep_prob"),
@@ -41,13 +47,28 @@ class ClassificationTemplate(NetTemplate):
         # Reference: http://ruishu.io/2016/12/27/batchnorm/
 
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-        with tf.control_dependencies(update_ops):
-            # Ensures that we execute the update_ops before performing the train_step
-            with tf.name_scope("cross_entropy"):
 
-                self.total_loss = tf.reduce_mean(
-                    tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=self.feature_map)
-                )
+        if self.pdf is None:
+
+            with tf.control_dependencies(update_ops):
+                # Ensures that we execute the update_ops before performing the train_step
+                with tf.name_scope("cross_entropy_loss"):
+
+                    self.total_loss = tf.reduce_mean(
+                        tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=self.feature_map)
+                    )
+        else:
+
+            with tf.control_dependencies(update_ops):
+                # Ensures that we execute the update_ops before performing the train_step
+                with tf.name_scope("cross_entropy_loss"):
+
+                    P_of_x = tf.nn.softmax(logits=self.feature_map)
+                    P_of_x_given_PDF = tf.divide(P_of_x, self.pdf)
+
+                    self.total_loss = tf.reduce_mean(
+                        tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=P_of_x_given_PDF)
+                    )
 
     def _define_prediction(self):
         assert self.feature_map is not None, "Error: Feature map wasn't defined."

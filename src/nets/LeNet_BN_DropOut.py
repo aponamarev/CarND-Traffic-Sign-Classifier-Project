@@ -3,9 +3,12 @@ from .ClassificationTemplate import ClassificationTemplate
 
 class LeNet_BN_DropOut(ClassificationTemplate):
 
-    def __init__(self, X_placeholders, Y_placeholders, n_classes):
+    def __init__(self, X_placeholders, Y_placeholders, n_classes, probability_density=None):
 
-        ClassificationTemplate.__init__(self, X_placeholders, Y_placeholders, n_classes)
+        ClassificationTemplate.__init__(self, X_placeholders,
+                                        Y_placeholders,
+                                        n_classes,
+                                        probability_density=probability_density)
 
 
     def _define_net(self):
