@@ -7,10 +7,12 @@ class ClassificationTemplate(NetTemplate):
     def __init__(self, X_placeholders, Y_placeholders, n_classes, default_activation='elu',
                  dtype=tf.float32, probability_density = None):
 
-        self.X = X_placeholders
+        with tf.device('/gpu:0'):
+            self.X = X_placeholders
 
-        self.labels = Y_placeholders
-        self.Y = tf.one_hot(self.labels, n_classes)
+            self.labels = Y_placeholders
+            self.Y = tf.one_hot(self.labels, n_classes)
+
         self._N_CLASSES = self.Y.get_shape().as_list()[1]
 
         if probability_density is None:
