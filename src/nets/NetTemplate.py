@@ -1,4 +1,4 @@
-# Author: Alexander Ponamarev (alex.ponamaryov@gmail.com) 04/30/2017
+	# Author: Alexander Ponamarev (alex.ponamaryov@gmail.com) 04/30/2017
 import tensorflow as tf
 import numpy as np
 
@@ -116,7 +116,7 @@ class NetTemplate(object):
         return tf.nn.avg_pool(inputs, kernel, strides, padding=padding, name=name)
 
     def _batch_norm(self, input, name, trainable=False):
-        return tf.layers.batch_normalization(input, name=name, trainable=trainable, training=self.is_training_mode)
+        return tf.contrib.layers.batch_norm(input, trainable=trainable, is_training=self.is_training_mode)
 
     def _drop_out_fullyconnected(self, input, name):
         return tf.nn.dropout(input, self.dropout_keep_rate, name=name)
