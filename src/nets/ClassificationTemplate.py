@@ -1,5 +1,6 @@
 # Author: Alexander Ponamarev (alex.ponamaryov@gmail.com) 04/30/2017
 import tensorflow as tf
+import tflearn
 from .NetTemplate import NetTemplate
 
 class ClassificationTemplate(NetTemplate):
@@ -7,6 +8,7 @@ class ClassificationTemplate(NetTemplate):
                  dtype=tf.float32, probability_density = None):
 
         self.X = X_placeholders
+
         self.labels = Y_placeholders
         self.Y = tf.one_hot(self.labels, n_classes)
         self._N_CLASSES = self.Y.get_shape().as_list()[1]

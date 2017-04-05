@@ -13,7 +13,7 @@ class LeNet_BN_DropOut(ClassificationTemplate):
 
     def _define_net(self):
 
-        conv1 = self._conv2d(self.X, [5,5,3,6], bias=False, padding="VALID",name="conv1")
+        conv1 = self._conv2d(self.X, [5, 5, 3, 6], bias=False, padding="VALID", name="conv1")
         pool1 = self._max_pool(conv1, name="pool1")
         pool1_bn = self._batch_norm(pool1, name="pool1_bn")
         self.activations.append(pool1_bn)
