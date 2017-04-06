@@ -6,11 +6,10 @@ class ClassificationTemplate(NetTemplate):
     def __init__(self, X_placeholders, Y_placeholders, n_classes, default_activation='elu',
                  dtype=tf.float32, probability_density = None):
 
-        with tf.device('/gpu:0'):
-            self.X = X_placeholders
+        self.X = X_placeholders
 
-            self.labels = Y_placeholders
-            self.Y = tf.one_hot(self.labels, n_classes)
+        self.labels = Y_placeholders
+        self.Y = tf.one_hot(self.labels, n_classes)
 
         self._N_CLASSES = self.Y.get_shape().as_list()[1]
 
@@ -49,30 +48,29 @@ class ClassificationTemplate(NetTemplate):
         #     total_loss = control_flow_ops.with_dependencies([updates], total_loss)
         # Reference: http://ruishu.io/2016/12/27/batchnorm/
 
-        with tf.device('/gpu:0'):
-            update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 
-            if self.pdf is None:
+        if self.pdf is None:
 
-                with tf.control_dependencies(update_ops):
-                    # Ensures that we execute the update_ops before performing the train_step
-                    with tf.name_scope("cross_entropy_loss"):
+            with tf.control_dependencies(update_ops):
+                # Ensures that we execute the update_ops before performing the train_step
+                with tf.name_scope("cross_entropy_loss"):
 
-                        self.total_loss = tf.reduce_mean(
-                            tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=self.feature_map)
-                        )
-            else:
+                    self.total_loss = tf.reduce_mean(
+                        tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=self.feature_map)
+                    )
+        else:
 
-                with tf.control_dependencies(update_ops):
-                    # Ensures that we execute the update_ops before performing the train_step
-                    with tf.name_scope("cross_entropy_loss"):
+            with tf.control_dependencies(update_ops):
+                # Ensures that we execute the update_ops before performing the train_step
+                with tf.name_scope("cross_entropy_loss"):
 
-                        P_of_x = tf.nn.softmax(logits=self.feature_map)
-                        P_of_x_given_PDF = tf.divide(P_of_x, self.pdf)
+                    P_of_x = tf.nn.softmax(logits=self.feature_map)
+                    P_of_x_given_PDF = tf.divide(P_of_x, self.pdf)
 
-                        self.total_loss = tf.reduce_mean(
-                            tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=P_of_x_given_PDF)
-                        )
+                    self.total_loss = tf.reduce_mean(
+                        tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=P_of_x_given_PDF)
+                    )
 
     def _define_prediction(self):
         assert self.feature_map is not None, "Error: Feature map wasn't defined."
