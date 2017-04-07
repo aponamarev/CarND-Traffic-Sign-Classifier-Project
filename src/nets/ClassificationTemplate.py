@@ -50,27 +50,29 @@ class ClassificationTemplate(NetTemplate):
 
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 
-        if self.pdf is None:
+        with tf.device("/gpu:0"):
 
-            with tf.control_dependencies(update_ops):
-                # Ensures that we execute the update_ops before performing the train_step
-                with tf.name_scope("cross_entropy_loss"):
+            if self.pdf is None:
 
-                    self.total_loss = tf.reduce_mean(
-                        tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=self.feature_map)
-                    )
-        else:
+                with tf.control_dependencies(update_ops):
+                    # Ensures that we execute the update_ops before performing the train_step
+                    with tf.name_scope("cross_entropy_loss"):
 
-            with tf.control_dependencies(update_ops):
-                # Ensures that we execute the update_ops before performing the train_step
-                with tf.name_scope("cross_entropy_loss"):
+                        self.total_loss = tf.reduce_mean(
+                            tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=self.feature_map)
+                        )
+            else:
 
-                    P_of_x = tf.nn.softmax(logits=self.feature_map)
-                    P_of_x_given_PDF = tf.divide(P_of_x, self.pdf)
+                with tf.control_dependencies(update_ops):
+                    # Ensures that we execute the update_ops before performing the train_step
+                    with tf.name_scope("cross_entropy_loss"):
 
-                    self.total_loss = tf.reduce_mean(
-                        tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=P_of_x_given_PDF)
-                    )
+                        P_of_x = tf.nn.softmax(logits=self.feature_map)
+                        P_of_x_given_PDF = tf.divide(P_of_x, self.pdf)
+
+                        self.total_loss = tf.reduce_mean(
+                            tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=P_of_x_given_PDF)
+                        )
 
     def _define_prediction(self):
         assert self.feature_map is not None, "Error: Feature map wasn't defined."
