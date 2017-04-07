@@ -7,6 +7,7 @@ class ClassificationTemplate(NetTemplate):
                  dtype=tf.float32, probability_density = None):
 
         self.X = X_placeholders
+        tf.summary.image("input_imgs", self.X)
 
         self.labels = Y_placeholders
         self.Y = tf.one_hot(self.labels, n_classes)
@@ -74,6 +75,8 @@ class ClassificationTemplate(NetTemplate):
                             tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=P_of_x_given_PDF)
                         )
 
+        tf.summary.scalar("total_loss", self.total_loss)
+
     def _define_prediction(self):
         assert self.feature_map is not None, "Error: Feature map wasn't defined."
         with tf.device('/gpu:0'):
@@ -87,6 +90,8 @@ class ClassificationTemplate(NetTemplate):
                 tf.cast(tf.equal(self.predict_class_op, tf.arg_max(self.Y, 1, name="predict_accuracy")),
                         dtype=tf.float32)
             )
+
+        tf.summary.scalar("accuracy", self.accuracy_op)
 
     def eval(self, X_batch, Y_batch):
         sess = tf.get_default_session()

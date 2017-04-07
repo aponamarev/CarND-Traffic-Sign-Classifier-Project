@@ -10,7 +10,7 @@ class NetTemplate(object):
         self.dropout_keep_rate = dropout_keep_rate
         self.is_training_mode = training_mode_flag
         self._default_activation = default_activation
-        self._default_activation_summary = 'hist'
+        self._default_activation_summary = 'img'
         self._dtype = dtype
         self.feature_map=None
         self.total_loss=None
@@ -133,14 +133,14 @@ class NetTemplate(object):
     def _relu_activation(self, input):
 
         activation = tf.nn.relu(input)
-        self._activation_summary(activation)
+        #self._activation_summary(activation)
 
         return activation
 
     def _elu_activation(self, input):
 
         activation = tf.nn.elu(input)
-        self._activation_summary(activation)
+        #self._activation_summary(activation)
 
         return activation
 
