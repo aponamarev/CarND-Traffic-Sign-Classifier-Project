@@ -24,13 +24,30 @@ The goals / steps of this project are the following:
 [image6]: ./examples/placeholder.png "Traffic Sign 3"
 [image7]: ./examples/placeholder.png "Traffic Sign 4"
 [image8]: ./examples/placeholder.png "Traffic Sign 5"
+[train_img1]: ./reporting_results/train_img1.png "Train Img 1"
+[train_img2]: ./reporting_results/train_img1.png "Train Img 2"
+[train_img3]: ./reporting_results/train_img1.png "Train Img 3"
+[data_dist]: ./reporting_results/data_distribution.png "Data Distribution"
+[LeNet_accuracy]: ./reporting_results/LeNet_accuracy.png "Accuracy: LeNet"
+[LeNet_Dro_accuracy]: ./reporting_results/LeNet_accuracy.png "Accuracy: LeNet"
+[LeNet_dropout_bn_accuracy]: ./reporting_results/LeNet_dropout_bn.png "Accuracy: LeNet with dropout and bn"
+[SmallFilters_Accuracy]: ./reporting_results/SmallFilters_Accuracy.png "Accuracy: SmallFilter Net"
+[SmallFilters_Loss]: ./reporting_results/SmallFilters_Loss.png "Loss: SmallFilter Net"
+[LeNet_graph]: ./reporting_results/LeNet_graph.png "Graph: LeNet"
+[SmallFilters_graph]: ./reporting_results/smallfilters_graph.png "Graph: SmallFilters"
+
+
 
 ## Rubric Points  
 ---
 
+The code in this repository presents two versions of the algorthm:
+* PDF - The posterior probability of the classifier is adjusted for prior probability of the dataset. The adjustment provided as a tf.constant. Values for this constant calculated in PDF function (Probability Density Function) in the 3rd code cell of Traffic_Sign_Classifier-PDF.ipynb
+* Rebalanced - rebalances the dataset through syntetic random oversampling to achieve equal probability of the dataset. The random is done by creating a new set of indeces of samples - trainset_balanced_ids. trainset_balanced_ids contains indeces for samples with an equal distribution of classes. Random oversampling is done in the 3rd cell of Traffic_Sign_Classifier_StoreSummaries.ipynb
+
 ### Data Set Summary & Exploration
 
-####1. Provide a basic summary of the data set and identify where in your code the summary was done. In the code, the analysis should be done using python, numpy and/or pandas methods rather than hardcoding results manually.
+#### 1. Provide a basic summary of the data set and identify where in your code the summary was done. In the code, the analysis should be done using python, numpy and/or pandas methods rather than hardcoding results manually.
 
 The code for this step is contained in the second code cell of the IPython notebook.  
 
