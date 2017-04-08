@@ -117,6 +117,8 @@ Overall the training could have been done in a smaller number of iterations. The
 
 SmallFilter Accuracy log:
 ![alt text][SmallFilters_Accuracy]
+LeNet Accuracy log:
+![alt text][LeNet_Accuracy]
 
 SmallFilter Loss log:
 ![alt text][SmallFilters_Loss]
@@ -124,26 +126,18 @@ SmallFilter Loss log:
 
 Models were trained on ec2.P2 instance equiped with Nvidia Tesla K80 GPU (12Gb memory).
 
-####5. Describe the approach taken for finding a solution. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
+#### 5. Describe the approach taken for finding a solution. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
-The code for calculating the accuracy of the model is located in the ninth cell of the Ipython notebook.
+The training process in the 9th cell includes an automatic reporting on training, validationa and test accuracies. In addition, I present the accuracy per 1000 of parameters. Both LeNet with Batch Normalizatino and Dropout and SmallFilterNet achive a very similar accuracy on a validatino test (roughly 95%). However, SmallFilter Net contains far lower number of examples. SmallFilter Net achieves 2.2% of accuracy per 1000 parameters vs. 1.5%-1.4% for LetNet structur due to use more efficient 3x3 convolutions and 1x1 bottlenecks. In addition, this architecture epmloys fully convolutional layers, which makes this net a candidate for potential use in object detection and image segmentation tasks.
+
+As a result, I chose to use SmallFilterNet as a final architecture.
 
 My final model results were:
-* training set accuracy of ?
-* validation set accuracy of ? 
-* test set accuracy of ?
+* training set accuracy of 99.5%
+* validation set accuracy of 94.6%
+* test set accuracy of 93.4%
 
-If an iterative approach was chosen:
-* What was the first architecture that was tried and why was it chosen?
-* What were some problems with the initial architecture?
-* How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to over fitting or under fitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
-* Which parameters were tuned? How were they adjusted and why?
-* What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
-
-If a well known architecture was chosen:
-* What architecture was chosen?
-* Why did you believe it would be relevant to the traffic sign application?
-* How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
+It is also important to note that the use of Adam Optimization reduces the need of tuning learning rates throgh a use of adaptive learning rates and a momentums.
  
 
 ###Test a Model on New Images
