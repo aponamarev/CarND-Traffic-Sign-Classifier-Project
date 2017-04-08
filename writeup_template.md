@@ -103,11 +103,26 @@ SmallFilterNet:
 ![alt text][SmallFilters_graph]
 
 
-####4. Describe how, and identify where in your code, you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
+#### 4. Describe how, and identify where in your code, you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
 
-The code for training the model is located in the eigth cell of the ipython notebook. 
+The code for training evaluation functions is located in cells 8 and 9. The cell 7 contains a general code of initialization of net structures. The code for training the models is located in cells 10-12. 
 
-To train the model, I used an ....
+The training includes the following:
+Optimizer - Adam Optimizer
+Batch size - 512 examples
+Epochs - LeNet architectures are trained for 50 epochs. SmallFilter net was trained for 70 epochs.
+Learning rate - Adam Optimizer initialized with 1e-3 learning rate.
+
+Overall the training could have been done in a smaller number of iterations. The training for all of the listed above architectures plateaued after rouhgly 35-40 epochs:
+
+SmallFilter Accuracy log:
+![alt text][SmallFilters_Accuracy]
+
+SmallFilter Loss log:
+![alt text][SmallFilters_Loss]
+
+
+Models were trained on ec2.P2 instance equiped with Nvidia Tesla K80 GPU (12Gb memory).
 
 ####5. Describe the approach taken for finding a solution. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
