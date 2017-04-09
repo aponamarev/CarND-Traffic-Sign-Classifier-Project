@@ -195,7 +195,8 @@ For the first image, the model is relatively sure that this is a stop sign (prob
 
 
 
-For the second image ... 
+For the second image:
+
 | Probability         	|     Prediction	        					| 
 |:---------------------:|:---------------------------------------------:| 
 | 100.0%      | Priority road (index 12)      |
@@ -205,7 +206,8 @@ For the second image ...
 | 0.0%      | Beware of ice/snow (index 30)      |
 
 
-For the second image ... 
+For the second image:
+
 | Probability         	|     Prediction	        					| 
 |:---------------------:|:---------------------------------------------:| 
 | 100.0%      | Priority road (index 12)      |
@@ -216,7 +218,8 @@ For the second image ...
 
 
 
-The third image ... 
+The third image:
+
 | Probability         	|     Prediction	        					| 
 |:---------------------:|:---------------------------------------------:| 
 | 100.0%      | Right-of-way at the next intersection (index 11)      |
@@ -228,7 +231,8 @@ The third image ...
 
 
 
-The fourth image ... 
+The fourth image:
+
 | Probability         	|     Prediction	        					| 
 |:---------------------:|:---------------------------------------------:| 
 | 100.0%      | Speed limit (120km/h) (index 8)      |
@@ -239,7 +243,8 @@ The fourth image ...
 
 
 
-For the fifth image ... 
+For the fifth image:
+
 | Probability         	|     Prediction	        					| 
 |:---------------------:|:---------------------------------------------:| 
 | 100.0%      | Yield (index 13)      |
