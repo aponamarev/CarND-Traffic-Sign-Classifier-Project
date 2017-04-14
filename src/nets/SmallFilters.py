@@ -14,7 +14,7 @@ class SmallFilters(ClassificationTemplate):
     def _define_net(self):
         with tf.device("/gpu:0"):
 
-            conv1 = self._conv2d(self.X, [3, 3, 3, 8], bias=True, padding="SAME", name="conv1") #32
+            conv1 = self._conv2d(self.X_norm, [3, 3, 3, 8], bias=True, padding="SAME", name="conv1") #32
             conv2 = self._conv2d(conv1, [3, 3, 8, 16], strides=[1,2,2,1], bias=True, padding="VALID", name="conv2")
             bottleneck3 = self._conv2d(conv2, [1, 1, 16, 4], bias=True, padding="SAME", name="bottleneck3")
             self.activations.append(bottleneck3)

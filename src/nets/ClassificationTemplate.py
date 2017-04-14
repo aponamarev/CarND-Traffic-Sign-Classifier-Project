@@ -4,15 +4,29 @@ from .NetTemplate import NetTemplate
 
 class ClassificationTemplate(NetTemplate):
     def __init__(self, X_placeholders, Y_placeholders, n_classes, default_activation='elu',
-                 dtype=tf.float32, probability_density = None):
+                 dtype=tf.float32, probability_density = None, trainset_mean=None, gpu="/gpu:0"):
 
-        self.X = X_placeholders
-        tf.summary.image("input_imgs", self.X)
+        self._gpu = gpu
+        self._img_mean = trainset_mean
 
-        self.labels = Y_placeholders
-        self.Y = tf.one_hot(self.labels, n_classes)
+        with tf.name_scope('inputs'):
+            self.X = X_placeholders
+            tf.summary.image("imgs", self.X, max_outputs=6)
+            self.labels = Y_placeholders
 
-        self._N_CLASSES = self.Y.get_shape().as_list()[1]
+            X_float = tf.divide(self.X, 255.0)
+            if self._img_mean is not None:
+                self.X_norm = tf.subtract(X_float, self._img_mean, name="X_norm")
+            else:
+                shape = X_float.get_shape().as_list()
+                shape[0] = -1
+                X_flat = tf.contrib.layers.flatten(X_float)
+                self.X_norm = tf.reshape(tf.subtract(X_flat, tf.reduce_mean(X_flat, axis=1, keep_dims=True, name="X_norm")),
+                                         shape)
+            tf.summary.image("norm_imgs", self.X_norm, max_outputs=6)
+
+
+        self._N_CLASSES = n_classes
 
         if probability_density is None:
             self.pdf=None
@@ -51,43 +65,37 @@ class ClassificationTemplate(NetTemplate):
 
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 
-        with tf.device("/gpu:0"):
-
-            if self.pdf is None:
-
-                with tf.control_dependencies(update_ops):
-                    # Ensures that we execute the update_ops before performing the train_step
-                    with tf.name_scope("cross_entropy_loss"):
-
+        with tf.device(self._gpu):
+            with tf.control_dependencies(update_ops):
+                # Ensures that we execute the update_ops before performing the train_step
+                with tf.name_scope("cross_entropy_loss"):
+                    if self.pdf is None:
                         self.total_loss = tf.reduce_mean(
-                            tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=self.feature_map)
+                            tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.labels,
+                                                                           logits=self.feature_map)
                         )
-            else:
-
-                with tf.control_dependencies(update_ops):
-                    # Ensures that we execute the update_ops before performing the train_step
-                    with tf.name_scope("cross_entropy_loss"):
-
+                    else:
                         P_of_x = tf.nn.softmax(logits=self.feature_map)
                         P_of_x_given_PDF = tf.divide(P_of_x, self.pdf)
 
                         self.total_loss = tf.reduce_mean(
-                            tf.nn.softmax_cross_entropy_with_logits(labels=self.Y, logits=P_of_x_given_PDF)
+                            tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.labels,
+                                                                           logits=P_of_x_given_PDF)
                         )
 
         tf.summary.scalar("total_loss", self.total_loss)
 
     def _define_prediction(self):
         assert self.feature_map is not None, "Error: Feature map wasn't defined."
-        with tf.device('/gpu:0'):
+        with tf.device(self._gpu):
             with tf.name_scope("class_prediction"):
                 self.probability_op = tf.nn.softmax(self.feature_map, name="probability")
                 self.predict_class_op = tf.arg_max(self.probability_op, 1, name="label")
 
     def _define_accuracy(self):
-        with tf.device('/gpu:0'):
+        with tf.device(self._gpu):
             self.accuracy_op = tf.reduce_mean(
-                tf.cast(tf.equal(self.predict_class_op, tf.arg_max(self.Y, 1, name="predict_accuracy")),
+                tf.cast(tf.equal(self.predict_class_op, self.labels, name="predict_accuracy"),
                         dtype=tf.float32)
             )
 

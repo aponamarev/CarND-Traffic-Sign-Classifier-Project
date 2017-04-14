@@ -14,7 +14,7 @@ class LeNet(ClassificationTemplate):
     def _define_net(self):
         with tf.device("/gpu:0"):
 
-            conv1 = self._conv2d(self.X, [5, 5, 3, 6], bias=True, padding="VALID", name="conv1")
+            conv1 = self._conv2d(self.X_norm, [5, 5, 3, 6], bias=True, padding="VALID", name="conv1")
             pool1 = self._max_pool(conv1, name="pool1")
             self.activations.append(pool1)
 
