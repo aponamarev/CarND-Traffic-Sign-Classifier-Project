@@ -9,6 +9,9 @@ class ClassificationTemplate(NetTemplate):
         self._gpu = gpu
         self._img_mean = trainset_mean
 
+        tf.add_to_collection('inputs', X_placeholders)
+        tf.add_to_collection('inputs', Y_placeholders)
+
         with tf.name_scope('inputs'):
             self.X = X_placeholders
             tf.summary.image("imgs", self.X, max_outputs=6)
@@ -91,6 +94,7 @@ class ClassificationTemplate(NetTemplate):
             with tf.name_scope("class_prediction"):
                 self.probability_op = tf.nn.softmax(self.feature_map, name="probability")
                 self.predict_class_op = tf.arg_max(self.probability_op, 1, name="label")
+                tf.add_to_collection(tf.GraphKeys.ACTIVATIONS, self.predict_class_op)
 
     def _define_accuracy(self):
         with tf.device(self._gpu):
@@ -98,6 +102,7 @@ class ClassificationTemplate(NetTemplate):
                 tf.cast(tf.equal(self.predict_class_op, self.labels, name="predict_accuracy"),
                         dtype=tf.float32)
             )
+            tf.add_to_collection(tf.GraphKeys.ACTIVATIONS, self.accuracy_op)
 
         tf.summary.scalar("accuracy", self.accuracy_op)
 

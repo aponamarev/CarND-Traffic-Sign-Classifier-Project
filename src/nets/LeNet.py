@@ -3,12 +3,12 @@ import tensorflow as tf
 from .ClassificationTemplate import ClassificationTemplate
 
 class LeNet(ClassificationTemplate):
-    def __init__(self, X_placeholders, Y_placeholders, n_classes, probability_density=None):
+    def __init__(self, X_placeholders, Y_placeholders, n_classes, probability_density=None, gpu="/gpu:0"):
 
         ClassificationTemplate.__init__(self, X_placeholders,
                                         Y_placeholders,
                                         n_classes,
-                                        probability_density=probability_density)
+                                        probability_density=probability_density, gpu=gpu)
 
 
     def _define_net(self):
